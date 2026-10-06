@@ -33,10 +33,26 @@ for fileName in os.listdir(DOCS_DIR):
 
 print(f" Nombre total de fichiers trouves et charges en memoire : {len(documents)}")
 
+if len(documents) == 0:
+    print(f"✖️ Erreur : aucun texte ni PDF ni markdown trouve dans le dossier ''{DOCS_DIR}'")
+    exit()
 
+#===
+textSplitter = RecursiveCharacterTextSplitter(chunk_size = 500,chunk_overlap=50)
+chunks = textSplitter.split_documents(documents)
+print(f"Nombre total de chunks crees : {len(chunks)}")
 
+#== 
+print("📌 Generation des embeddings avec Sentence-Transormers...")
+embeddings = HuggingFaceEmbeddings(modelName ="all-MiniLM-L6-v2")
 
+#==
+print("📌 Construction et sauvegarde de la base vectorielle FAISS...")
+db = FAISS.from_documents(chunks, embeddings)
+db.save_local("faiss_index")
 
+print("✅ la base de donnees a ete ctree et enregistree " \
+"avec succes a partir des fichiers markdown et pdf")
 
 
 
